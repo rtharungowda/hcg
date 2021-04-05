@@ -101,16 +101,13 @@ def loader():
     dataloaders = {
         x: DataLoader(img_datasets[x], batch_size=config.BATCH_SIZE,shuffle=True, num_workers=2)
         for x in ['train', 'val']}
-    
-    # Get a batch of training data
-    inputs, classes = next(iter(dataloaders['train']))
-
-    # Make a grid from batch
-    # out = torchvision.utils.make_grid(inputs)
-
-    # imshow(out)
 
     return dataloaders,dataset_sizes
 
 if __name__=='__main__':
-    loader()
+    dataloaders,dataset_sizes = loader()
+    # Get a batch of training data
+    inputs, classes = next(iter(dataloaders['train']))
+    # Make a grid from batch
+    out = torchvision.utils.make_grid(inputs)
+    imshow(out)
