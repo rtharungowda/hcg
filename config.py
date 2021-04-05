@@ -2,11 +2,11 @@ import os
 import torch
 
 LR = 0.0001
-NUM_EPOCHS = 1
+NUM_EPOCHS = 100
 BATCH_SIZE = 16
 
 DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-NUM_CLASSES = 36
+NUM_CLASSES = 37
 TRAIN_IMAGES = "/content/drive/MyDrive/competitions/mosaic-r1/dataset/Train"
 VAL_IMAGES = "/content/drive/MyDrive/competitions/mosaic-r1/dataset/Test"
 TRAIN_CSV = '/content/drive/MyDrive/competitions/mosaic-r1/train.csv'

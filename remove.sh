@@ -1,0 +1,21 @@
+rm -r /content/drive/MyDrive/competitions/mosaic-r1/dataset/Train/digit_0
+rm -r /content/drive/MyDrive/competitions/mosaic-r1/dataset/Train/digit_1
+rm -r /content/drive/MyDrive/competitions/mosaic-r1/dataset/Train/digit_2
+rm -r /content/drive/MyDrive/competitions/mosaic-r1/dataset/Train/digit_3
+rm -r /content/drive/MyDrive/competitions/mosaic-r1/dataset/Train/digit_4
+rm -r /content/drive/MyDrive/competitions/mosaic-r1/dataset/Train/digit_5
+rm -r /content/drive/MyDrive/competitions/mosaic-r1/dataset/Train/digit_6
+rm -r /content/drive/MyDrive/competitions/mosaic-r1/dataset/Train/digit_7
+rm -r /content/drive/MyDrive/competitions/mosaic-r1/dataset/Train/digit_8
+rm -r /content/drive/MyDrive/competitions/mosaic-r1/dataset/Train/digit_9
+
+rm -r /content/drive/MyDrive/competitions/mosaic-r1/dataset/Test/digit_0
+rm -r /content/drive/MyDrive/competitions/mosaic-r1/dataset/Test/digit_1
+rm -r /content/drive/MyDrive/competitions/mosaic-r1/dataset/Test/digit_2
+rm -r /content/drive/MyDrive/competitions/mosaic-r1/dataset/Test/digit_3
+rm -r /content/drive/MyDrive/competitions/mosaic-r1/dataset/Test/digit_4
+rm -r /content/drive/MyDrive/competitions/mosaic-r1/dataset/Test/digit_5
+rm -r /content/drive/MyDrive/competitions/mosaic-r1/dataset/Test/digit_6
+rm -r /content/drive/MyDrive/competitions/mosaic-r1/dataset/Test/digit_7
+rm -r /content/drive/MyDrive/competitions/mosaic-r1/dataset/Test/digit_8
+rm -r /content/drive/MyDrive/competitions/mosaic-r1/dataset/Test/digit_9

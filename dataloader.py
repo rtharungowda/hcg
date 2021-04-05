@@ -49,10 +49,6 @@ def imshow(inp):
 def albu():
     transform ={"train":A.Compose([
                                     A.Resize(width=224, height=224),
-                                    # A.Rotate(always_apply=False, p=1.0, limit=(-24, 24), interpolation=0,
-                                    #         border_mode=0, value=(0, 0, 0), mask_value=None),
-                                    # A.HorizontalFlip(always_apply=False, p=0.5),
-                                    # A.VerticalFlip(always_apply=False, p=0.5),
                                     A.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
                                     ToTensorV2(),
                                 ]),

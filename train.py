@@ -20,7 +20,7 @@ from utils import save_ckp, plot
 
 # scaler = torch.cuda.amp.GradScaler()
 
-def train_model(model, criterion, optimizer, scheduler, dataset_sizes, num_epochs=25):
+def train_model(model, dataloaders, criterion, optimizer, scheduler, dataset_sizes, checkpoint_path, num_epochs=25):
     since = time.time()
 
     best_model_wts = copy.deepcopy(model.state_dict())
@@ -44,8 +44,8 @@ def train_model(model, criterion, optimizer, scheduler, dataset_sizes, num_epoch
 
             # Iterate over data.
             for inputs, labels in dataloaders[phase]:
-                inputs = inputs.to(DEVICE)
-                labels = labels.to(DEVICE)
+                inputs = inputs.to(config.DEVICE)
+                labels = labels.to(config.DEVICE)
 
                 # zero the parameter gradients
                 optimizer.zero_grad()
@@ -93,7 +93,7 @@ def train_model(model, criterion, optimizer, scheduler, dataset_sizes, num_epoch
                     'state_dict': model.state_dict(),
                     'optimizer': optimizer_ft.state_dict(),
                 }
-                checkpoint_path = "/content/drive/MyDrive/competitions/mosaic-r1/weights/res18.pt"
+                # checkpoint_path = "/content/drive/MyDrive/competitions/mosaic-r1/weights/res18.pt"
                 save_ckp(checkpoint, checkpoint_path)
 
         print()
@@ -114,7 +114,7 @@ def mdl(type):
     if type == "res18":
         model_ft = models.resnet18(pretrained=True)
         num_ftrs = model_ft.fc.in_features
-        model_ft.fc = nn.Linear(num_ftrs, 2)
+        model_ft.fc = nn.Linear(num_ftrs, config.NUM_CLASSES)
 
         return model_ft
     
@@ -157,5 +157,6 @@ if __name__ == '__main__':
 
     # Decay LR by a factor of 0.1 every 7 epochs
     exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=7, gamma=0.1)
+    checkpoint_path = "/content/drive/MyDrive/competitions/mosaic-r1/weights/res18.pt"
 
-    model_ft, best_acc = train_model(model_ft, criterion, optimizer_ft, exp_lr_scheduler,dataset_sizes,num_epochs=EPOCHS)
+    model_ft, best_acc = train_model(model_ft, dataloaders, criterion, optimizer_ft, exp_lr_scheduler, dataset_sizes, checkpoint_path, num_epochs=config.NUM_EPOCHS)
