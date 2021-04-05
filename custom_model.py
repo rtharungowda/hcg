@@ -87,12 +87,12 @@ class akbhd(nn.Module):
     
     def forward(self,x):
         x = self.conv1(x)
-        # x = torch.sigmoid(x)
-        x = F.ReLU(x)
+        x = torch.sigmoid(x)
+        # x = F.ReLU(x)
         x = self.maxpool1(x)
         x = self.conv2(x)
-        # x = torch.sigmoid(x)
-        x = F.ReLU(x)
+        x = torch.sigmoid(x)
+        # x = F.ReLU(x)
         x = self.maxpool2(x)
         x = x.view(x.size(0),-1)
         x = self.linear1(x)
@@ -113,5 +113,5 @@ if __name__ == '__main__':
 
     # Decay LR by a factor of 0.1 every 7 epochs
     exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=7, gamma=0.1)
-
-    model_ft, best_acc = train.train_model(model_ft, dataloaders, criterion, optimizer_ft, exp_lr_scheduler, dataset_sizes, "/content/drive/MyDrive/competitions/mosaic-r1/weights/akbhd.pt", num_epochs=config.NUM_EPOCHS)
+    checkpoint_path = "/content/drive/MyDrive/competitions/mosaic-r1/weights/akbhd.pt"
+    model_ft, best_acc = train.train_model(model_ft, dataloaders, criterion, optimizer_ft, exp_lr_scheduler, dataset_sizes, checkpoint_path, num_epochs=config.NUM_EPOCHS)
