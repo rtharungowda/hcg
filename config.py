@@ -1,10 +1,15 @@
 import os
 
+LR = 0.0001
+NUM_EPOCHS = 100
+BATCH_SIZE = 16
+
 NUM_CLASSES = 36
 TRAIN_IMAGES = "/content/drive/MyDrive/competitions/mosaic-r1/dataset/Train"
 VAL_IMAGES = "/content/drive/MyDrive/competitions/mosaic-r1/dataset/Test"
 TRAIN_CSV = '/content/drive/MyDrive/competitions/mosaic-r1/train.csv'
 VAL_CSV = '/content/drive/MyDrive/competitions/mosaic-r1/val.csv'
+
 MAPPING = {
     'character_10_yna':10,
     'character_11_taamatar':11,
