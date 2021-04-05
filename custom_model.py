@@ -3,6 +3,7 @@ import train
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 import torch.optim as optim
 from torch.optim import lr_scheduler
 import numpy as np
@@ -31,7 +32,6 @@ class character(Dataset):
     
     def __getitem__(self,ind):
         x = Image.open(self.df['path'].iloc[ind])
-        # x = self.tf(x)
         x = np.array(x)/255.
         x = self.tf(image=x)['image']
         x = x.float()
@@ -42,12 +42,10 @@ class character(Dataset):
 def albu():
     transform ={"train":A.Compose([
                                     A.Resize(width=32, height=32),
-                                    # A.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
                                     ToTensorV2(),
                                 ]),
                 "val":A.Compose([
                                     A.Resize(width=32, height=32),
-                                    # A.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
                                     ToTensorV2()
                                 ])
                 } 
@@ -89,10 +87,12 @@ class akbhd(nn.Module):
     
     def forward(self,x):
         x = self.conv1(x)
-        x = torch.sigmoid(x)
+        # x = torch.sigmoid(x)
+        x = F.ReLU(x)
         x = self.maxpool1(x)
         x = self.conv2(x)
-        x = torch.sigmoid(x)
+        # x = torch.sigmoid(x)
+        x = F.ReLU(x)
         x = self.maxpool2(x)
         x = x.view(x.size(0),-1)
         x = self.linear1(x)
@@ -114,4 +114,4 @@ if __name__ == '__main__':
     # Decay LR by a factor of 0.1 every 7 epochs
     exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=7, gamma=0.1)
 
-    model_ft, best_acc = train.train_model(model_ft, dataloaders, criterion, optimizer_ft, exp_lr_scheduler, dataset_sizes, "/content/drive/MyDrive/competitions/mosaic-r1/weights/akbhd.pt", num_epochs=1)
+    model_ft, best_acc = train.train_model(model_ft, dataloaders, criterion, optimizer_ft, exp_lr_scheduler, dataset_sizes, "/content/drive/MyDrive/competitions/mosaic-r1/weights/akbhd.pt", num_epochs=config.NUM_EPOCHS)

@@ -13,6 +13,8 @@ import time
 import os
 import copy
 
+from tqdm import tqdm 
+
 # from efficientnet_pytorch import EfficientNet
 # import pretrainedmodels
 from dataloader import loader
@@ -21,10 +23,11 @@ from utils import save_ckp, plot
 # scaler = torch.cuda.amp.GradScaler()
 
 def train_model(model, dataloaders, criterion, optimizer, scheduler, dataset_sizes, checkpoint_path, num_epochs=25):
+    print(f"saving to {checkpoint_path}")
     since = time.time()
 
     best_model_wts = copy.deepcopy(model.state_dict())
-    best_acc = 0.9660
+    best_acc = 0
     loss_p = {'train':[],'val':[]}
     acc_p = {'train':[],'val':[]}
 
@@ -43,7 +46,8 @@ def train_model(model, dataloaders, criterion, optimizer, scheduler, dataset_siz
             running_corrects = 0
 
             # Iterate over data.
-            for inputs, labels in dataloaders[phase]:
+            tk = tqdm(dataloaders[phase], total=len(dataloaders[phase]))
+            for inputs, labels in tk:
                 inputs = inputs.to(config.DEVICE)
                 labels = labels.to(config.DEVICE)
 
@@ -69,7 +73,7 @@ def train_model(model, dataloaders, criterion, optimizer, scheduler, dataset_siz
                 running_loss += loss.item() * inputs.size(0)
                 running_corrects += torch.sum(preds == labels.data)
 
-                print("running loss ",running_loss)
+                # print("running loss ",running_loss)
 
             if phase == 'train':
                 scheduler.step()
@@ -91,9 +95,10 @@ def train_model(model, dataloaders, criterion, optimizer, scheduler, dataset_siz
                     'epoch': epoch,
                     'valid_acc': best_acc,
                     'state_dict': model.state_dict(),
-                    'optimizer': optimizer_ft.state_dict(),
+                    'optimizer': optimizer.state_dict(),
                 }
                 # checkpoint_path = "/content/drive/MyDrive/competitions/mosaic-r1/weights/res18.pt"
+                print(f"saving to {checkpoint_path}")
                 save_ckp(checkpoint, checkpoint_path)
 
         print()
