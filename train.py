@@ -16,7 +16,7 @@ import copy
 from tqdm import tqdm 
 
 from dataloader import loader
-from custom_model import akbhd, vatch
+from custom_model import akbhd, vatch, drklrd
 from utils import save_ckp, plot
 
 scaler = torch.cuda.amp.GradScaler()
@@ -117,7 +117,7 @@ def train_model(model, dataloaders, criterion, optimizer, scheduler, dataset_siz
 if __name__ == '__main__':
     dataloaders,dataset_sizes = loader()
 
-    model_ft = akbhd()
+    model_ft = drklrd()
     model_ft = model_ft.to(config.DEVICE)
 
     criterion = nn.CrossEntropyLoss()
@@ -125,5 +125,5 @@ if __name__ == '__main__':
 
     # Decay LR by a factor of 0.1 every 7 epochs
     exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=7, gamma=0.1)
-    checkpoint_path = "/content/drive/MyDrive/competitions/mosaic-r1/weights/akbhd_albu_relu_padded.pt"
+    checkpoint_path = "/content/drive/MyDrive/competitions/mosaic-r1/weights/drklrd_albu.pt"
     model_ft, best_acc = train_model(model_ft, dataloaders, criterion, optimizer_ft, exp_lr_scheduler, dataset_sizes, checkpoint_path, num_epochs=config.NUM_EPOCHS)

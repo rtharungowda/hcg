@@ -57,13 +57,16 @@ class akbhd(nn.Module):
         x = F.relu(x)
         x = F.pad(x,calc_padding(x.size(2),x.size(3),2,2,strides=(None,2,2)))
         x = self.maxpool1(x)
+
         x = self.conv2(x)
         # x = torch.sigmoid(x)
         x = F.relu(x)
         x = F.pad(x,calc_padding(x.size(2),x.size(3),5,5,strides=(None,5,5)))
         x = self.maxpool2(x)
+
         x = x.view(x.size(0),-1)
         x = self.linear1(x)
+
         return x
 
 class vatch(nn.Module):
@@ -85,27 +88,78 @@ class vatch(nn.Module):
     def forward(self,x):
         x = F.pad(x,calc_padding(32,32,3,3))
         x = F.relu(self.conv0(x))
+
         x = F.pad(x,calc_padding(x.size(2),x.size(3),3,3))
         x = F.relu(self.conv1(x))
+
         x = F.pad(x,calc_padding(x.size(2),x.size(3),3,3))
         x = F.relu(self.conv2(x))
         x = self.maxpool2(x)
+
         x = F.pad(x,calc_padding(x.size(2),x.size(3),3,3))
         x = F.relu(self.conv3(x))
+
         x = F.pad(x,calc_padding(x.size(2),x.size(3),5,5))
         x = F.relu(self.conv4(x))
         x = self.maxpool4(x)
+
         x = F.pad(x,calc_padding(x.size(2),x.size(3),5,5))
         x = F.relu(self.conv5(x))
+        
         x = x.view(x.size(0),-1)
         x = F.relu(self.linear0(x))
         x = F.relu(self.linear1(x))
         x = F.relu(self.linear2(x))
         x = self.linear3(x)
+
+        return x
+
+class drklrd(nn.Module):
+    def __init__(self):
+        super(drklrd, self).__init__()
+        self.conv0 = nn.Conv2d(1,32,kernel_size=(3,3))
+        self.batchnorm2d0 = nn.BatchNorm2d(32)
+        self.conv1 = nn.Conv2d(32,32,kernel_size=(3,3))
+        self.batchnorm2d1 = nn.BatchNorm2d(32)
+        self.conv2 = nn.Conv2d(32,64,kernel_size=(3,3))
+        self.batchnorm2d2 = nn.BatchNorm2d(64)
+        self.conv3 = nn.Conv2d(64,64,kernel_size=(3,3))
+        self.batchnorm2d3 = nn.BatchNorm2d(64)
+        self.linear1 = nn.Linear(256,128)
+        self.batchnorm1d1 = nn.BatchNorm1d(128)
+        self.linear2 = nn.Linear(128,64)
+        self.batchnorm1d2 = nn.BatchNorm1d(64)
+        self.linear3 = nn.Linear(64,config.NUM_CLASSES)
+
+        self.maxpool = nn.MaxPool2d(kernel_size=(2,2),stride=(2,2))
+        
+    
+    def forward(self,x):
+        x = self.batchnorm2d0(F.relu(self.conv0(x)))
+        # x = F.pad(x,calc_padding(x.size(2),x.size(3),2,2,strides=(None,2,2)))
+        x = self.maxpool(x)
+        
+        x = self.batchnorm2d1(F.relu(self.conv1(x)))
+        # x = F.pad(x,calc_padding(x.size(2),x.size(3),2,2,strides=(None,2,2)))
+        x = self.maxpool(x)
+        
+        x = self.batchnorm2d2(F.relu(self.conv2(x)))
+        # x = F.pad(x,calc_padding(x.size(2),x.size(3),2,2,strides=(None,2,2)))
+        x = self.maxpool(x)
+        
+        # x = self.batchnorm2d3(F.relu(self.conv3(x)))
+        # x = F.pad(x,calc_padding(x.size(2),x.size(3),2,2,strides=(None,2,2)))
+        # x = self.maxpool(x)
+        
+        x = x.view(x.size(0),-1)
+        x = self.batchnorm1d1(F.relu(self.linear1(x)))
+        x = self.batchnorm1d2(F.relu(self.linear2(x)))
+        x = self.linear3(x)
+        
         return x
 
 if __name__ == '__main__':
 
-    mdl = akbhd()
-    x = torch.rand((1,1,32,32))
-    print(mdl(x))
+    mdl = drklrd()
+    x = torch.rand((2,1,32,32))
+    print(mdl(x).size())
