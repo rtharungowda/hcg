@@ -98,6 +98,31 @@ class akbhd(nn.Module):
         x = self.linear1(x)
         return x
 
+inputs = Input(shape = (32,32,1))
+conv0 = Conv2D(64, 3, padding = 'same', activation = 'relu')(inputs)
+conv1 = Conv2D(64, 3, padding='same', activation='relu')(conv0)
+conv2 = Conv2D(128, 3, padding='same', activation='relu')(conv1)
+pool2 = MaxPooling2D((2,2))(conv2)
+conv3 = Conv2D(128, 3, padding='same', activation='relu')(pool2)
+conv4 = Conv2D(256, 5, padding='same', activation='relu')(conv3)
+pool4 = MaxPooling2D((2,2))(conv4)
+conv5 = Conv2D(256, 5, padding='same', activation='relu')(pool4)
+flat = Flatten()(conv5)
+dense0 = Dense(512, activation='relu')(flat)
+dense1 = Dense(128, activation='relu')(dense0)
+dense2 = Dense(64, activation='relu')(dense1)
+dense3 = Dense(47, activation='softmax')(dense2)
+
+class vatch(nn.Module):
+    def __init__(self):
+        super(vatch, self).__init__()
+        self.conv0 = nn.Conv2d(1,64,kernel_size=(3,3))
+        self.conv1 = nn.Conv2d(64,64,kernel_size=(3,3))
+        self.conv2 = nn.Conv2d(64,128,kernel_size=(3,3))
+        self.maxpool2 = nn.MaxPool2d(kernel_size=2)
+        self.conv3 = nn.Conv2d(128,64,kernel_size=(5,5))
+        self.maxpool2 = nn.MaxPool2d(kernel_size=5,stride=5)
+        self.linear1 = nn.Linear(64*2*2,config.NUM_CLASSES)
 
 if __name__ == '__main__':
     dataloaders,dataset_sizes = loader()
