@@ -121,9 +121,9 @@ if __name__ == '__main__':
     model_ft = model_ft.to(config.DEVICE)
 
     criterion = nn.CrossEntropyLoss()
-    optimizer_ft = optim.Adam(model_ft.parameters(), lr=0.001)
+    optimizer_ft = optim.Adam(model_ft.parameters(), lr=0.0001)
 
     # Decay LR by a factor of 0.1 every 7 epochs
     exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=7, gamma=0.1)
-    checkpoint_path = "/content/drive/MyDrive/competitions/mosaic-r1/weights/akbhd_albu2.pt"
+    checkpoint_path = "/content/drive/MyDrive/competitions/mosaic-r1/weights/akbhd_albu_relu_padded.pt"
     model_ft, best_acc = train_model(model_ft, dataloaders, criterion, optimizer_ft, exp_lr_scheduler, dataset_sizes, checkpoint_path, num_epochs=config.NUM_EPOCHS)

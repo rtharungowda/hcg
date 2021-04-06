@@ -21,30 +21,7 @@ from albumentations.pytorch import ToTensorV2
 
 import config
 
-class akbhd(nn.Module):
-    def __init__(self):
-        super(akbhd, self).__init__()
-        self.conv1 = nn.Conv2d(1,32,kernel_size=(5,5))
-        self.maxpool1 = nn.MaxPool2d(kernel_size=2,stride=2)
-        self.conv2 = nn.Conv2d(32,64,kernel_size=(5,5))
-        self.maxpool2 = nn.MaxPool2d(kernel_size=5,stride=5)
-        self.linear1 = nn.Linear(64*2*2,config.NUM_CLASSES)
-    
-    def forward(self,x):
-        x = self.conv1(x)
-        x = torch.sigmoid(x)
-        # x = F.ReLU(x)
-        x = self.maxpool1(x)
-        x = self.conv2(x)
-        x = torch.sigmoid(x)
-        # x = F.ReLU(x)
-        x = self.maxpool2(x)
-        x = x.view(x.size(0),-1)
-        x = self.linear1(x)
-        return x
-
-def calc_padding(in_height, in_width,filter_height, filter_width):
-    strides=(None,1,1)
+def calc_padding(in_height, in_width,filter_height, filter_width, strides=(None,1,1)):
     out_height = np.ceil(float(in_height) / float(strides[1]))
     out_width  = np.ceil(float(in_width) / float(strides[2]))
 
@@ -64,6 +41,30 @@ def calc_padding(in_height, in_width,filter_height, filter_width):
     pad_right = pad_along_width - pad_left
 
     return (pad_left, pad_right, pad_top, pad_bottom)
+
+class akbhd(nn.Module):
+    def __init__(self):
+        super(akbhd, self).__init__()
+        self.conv1 = nn.Conv2d(1,32,kernel_size=(5,5))
+        self.maxpool1 = nn.MaxPool2d(kernel_size=2,stride=2)
+        self.conv2 = nn.Conv2d(32,64,kernel_size=(5,5))
+        self.maxpool2 = nn.MaxPool2d(kernel_size=5,stride=5)
+        self.linear1 = nn.Linear(64*2*2,config.NUM_CLASSES)
+    
+    def forward(self,x):
+        x = self.conv1(x)
+        # x = torch.sigmoid(x)
+        x = F.relu(x)
+        x = F.pad(x,calc_padding(x.size(2),x.size(3),2,2,strides=(None,2,2)))
+        x = self.maxpool1(x)
+        x = self.conv2(x)
+        # x = torch.sigmoid(x)
+        x = F.relu(x)
+        x = F.pad(x,calc_padding(x.size(2),x.size(3),5,5,strides=(None,5,5)))
+        x = self.maxpool2(x)
+        x = x.view(x.size(0),-1)
+        x = self.linear1(x)
+        return x
 
 class vatch(nn.Module):
     def __init__(self):
@@ -105,6 +106,6 @@ class vatch(nn.Module):
 
 if __name__ == '__main__':
 
-    mdl = vatch()
+    mdl = akbhd()
     x = torch.rand((1,1,32,32))
-    print(mdl(x).size())
+    print(mdl(x))
