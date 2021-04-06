@@ -19,7 +19,7 @@ from dataloader import loader
 from custom_model import akbhd, vatch
 from utils import save_ckp, plot
 
-# scaler = torch.cuda.amp.GradScaler()
+scaler = torch.cuda.amp.GradScaler()
 
 def train_model(model, dataloaders, criterion, optimizer, scheduler, dataset_sizes, checkpoint_path, num_epochs=25):
     print(f"saving to {checkpoint_path}")
@@ -62,11 +62,11 @@ def train_model(model, dataloaders, criterion, optimizer, scheduler, dataset_siz
 
                     # backward + optimize only if in training phase
                     if phase == 'train':
-                        loss.backward()
-                        optimizer.step()
-                        # scaler.scale(loss).backward()
-                        # scaler.step(optimizer)
-                        # scaler.update()
+                        # loss.backward()
+                        # optimizer.step()
+                        scaler.scale(loss).backward()
+                        scaler.step(optimizer)
+                        scaler.update()
 
                 # statistics
                 running_loss += loss.item() * inputs.size(0)
@@ -117,7 +117,7 @@ def train_model(model, dataloaders, criterion, optimizer, scheduler, dataset_siz
 if __name__ == '__main__':
     dataloaders,dataset_sizes = loader()
 
-    model_ft = vatch()
+    model_ft = akbhd()
     model_ft = model_ft.to(config.DEVICE)
 
     criterion = nn.CrossEntropyLoss()
@@ -125,5 +125,5 @@ if __name__ == '__main__':
 
     # Decay LR by a factor of 0.1 every 7 epochs
     exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=7, gamma=0.1)
-    checkpoint_path = "/content/drive/MyDrive/competitions/mosaic-r1/weights/vatch.pt"
+    checkpoint_path = "/content/drive/MyDrive/competitions/mosaic-r1/weights/akbhd_albu2.pt"
     model_ft, best_acc = train_model(model_ft, dataloaders, criterion, optimizer_ft, exp_lr_scheduler, dataset_sizes, checkpoint_path, num_epochs=config.NUM_EPOCHS)

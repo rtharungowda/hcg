@@ -36,10 +36,18 @@ class character(Dataset):
     
 def albu():
     transform ={"train":A.Compose([
+                                    A.OneOf([
+                                        A.ShiftScaleRotate(always_apply=False, p=0.3, shift_limit=(0.0, 0.0), scale_limit=(-0.0, 0.0), rotate_limit=(-10, 10), interpolation=0, border_mode=0, value=(0, 0, 0), mask_value=None),
+                                        A.ShiftScaleRotate(always_apply=False, p=0.3, shift_limit=(-0.1, 0.1), scale_limit=(-0.0, 0.0), rotate_limit=(0, 0), interpolation=0, border_mode=0, value=(0, 0, 0), mask_value=None),
+                                        A.ShiftScaleRotate(always_apply=False, p=0.3, shift_limit=(0.0, 0.0), scale_limit=(-0.1, 0.1), rotate_limit=(0, 0), interpolation=0, border_mode=0, value=(0, 0, 0), mask_value=None),
+                                        A.ShiftScaleRotate(always_apply=False, p=0.1, shift_limit=(-0.1, 0.1), scale_limit=(-0.1, 0.1), rotate_limit=(-10, 10), interpolation=0, border_mode=0, value=(0, 0, 0), mask_value=None),
+                                    ],p=1.0),
+                                    A.InvertImg(always_apply=False, p=0.5),
                                     A.Resize(width=32, height=32),
                                     ToTensorV2(),
                                 ]),
                 "val":A.Compose([
+                                    A.InvertImg(always_apply=False, p=0.5),
                                     A.Resize(width=32, height=32),
                                     ToTensorV2()
                                 ])

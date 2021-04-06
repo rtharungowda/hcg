@@ -3,7 +3,7 @@ import torch
 
 LR = 0.0001
 NUM_EPOCHS = 100
-BATCH_SIZE = 16
+BATCH_SIZE = 128
 
 DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 NUM_CLASSES = 37

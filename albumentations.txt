@@ -1,0 +1,12 @@
+A.ShiftScaleRotate(always_apply=False, p=0.7, shift_limit=(-0.08999999612569809, 0.08999999612569809), scale_limit=(-0.29999998211860657, 0.29999998211860657), rotate_limit=(-14, 14), interpolation=0, border_mode=0, value=(0, 0, 0), mask_value=None),
+A.CoarseDropout(always_apply=False, p=1.0, max_holes=8, max_height=5, max_width=5, min_holes=8, min_height=1, min_width=1),
+A.InvertImg(always_apply=False, p=0.5),
+A.OneOf([
+    A.Blur(always_apply=False, p=1.0, blur_limit=(7, 15)),
+    A.MotionBlur(always_apply=False, p=1.0, blur_limit=(3, 7)),
+]),
+A.OneOf([
+    A.GridDistortion(always_apply=False, p=0.5, num_steps=3, distort_limit=(-0.14999999105930328, 0.14999999105930328), interpolation=0, border_mode=0, value=(0, 0, 0), mask_value=None),
+A.ISONoise(always_apply=False, p=0.5, intensity=(0.10000000149011612, 0.550000011920929), color_shift=(0.009999999776482582, 0.05000000074505806)),
+],p=),
+A.RandomContrast(always_apply=False, p=1.0, limit=(-0.20000000298023224, 0.20000000298023224)),
