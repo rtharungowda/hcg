@@ -15,9 +15,8 @@ import copy
 
 from tqdm import tqdm 
 
-# from efficientnet_pytorch import EfficientNet
-# import pretrainedmodels
 from dataloader import loader
+from custom_model import akbhd, vatch
 from utils import save_ckp, plot
 
 # scaler = torch.cuda.amp.GradScaler()
@@ -115,53 +114,16 @@ def train_model(model, dataloaders, criterion, optimizer, scheduler, dataset_siz
 
     return model, best_acc
 
-def mdl(type):
-    if type == "res18":
-        model_ft = models.resnet18(pretrained=True)
-        num_ftrs = model_ft.fc.in_features
-        model_ft.fc = nn.Linear(num_ftrs, config.NUM_CLASSES)
-
-        return model_ft
-    
-    elif type == "res50":
-        model_ft = models.resnet50(pretrained=True)
-        num_ftrs = model_ft.fc.in_features
-        model_ft.fc = nn.Linear(num_ftrs, 2)
-
-        return model_ft
-
-    elif type == "eff-b6":
-        model = EfficientNet.from_name('efficientnet-b6', num_classes=2)
-        return model
-
-    elif type == "eff-b3":
-        model = EfficientNet.from_name('efficientnet-b3', num_classes=2)
-        return model
-    
-    elif type == "dns201":
-        model = torch.hub.load('pytorch/vision:v0.9.0', 'densenet201', pretrained=False)
-        return model
-
-    elif type == "rsnxt-50":
-        model = pretrainedmodels.__dict__[
-            "se_resnext50_32x4d"
-        ](num_classes=2,pretrained=None)
-        return model
-
 if __name__ == '__main__':
     dataloaders,dataset_sizes = loader()
 
-    model_ft = mdl("res18")
+    model_ft = vatch()
     model_ft = model_ft.to(config.DEVICE)
 
     criterion = nn.CrossEntropyLoss()
-
-    # Observe that all parameters are being optimized
-    # optimizer_ft = optim.SGD(model_ft.parameters(), lr=0.001, momentum=0.9)
     optimizer_ft = optim.Adam(model_ft.parameters(), lr=0.001)
 
     # Decay LR by a factor of 0.1 every 7 epochs
     exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=7, gamma=0.1)
-    checkpoint_path = "/content/drive/MyDrive/competitions/mosaic-r1/weights/res18.pt"
-
+    checkpoint_path = "/content/drive/MyDrive/competitions/mosaic-r1/weights/vatch.pt"
     model_ft, best_acc = train_model(model_ft, dataloaders, criterion, optimizer_ft, exp_lr_scheduler, dataset_sizes, checkpoint_path, num_epochs=config.NUM_EPOCHS)

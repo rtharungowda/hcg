@@ -1,6 +1,3 @@
-import config 
-import train
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -22,59 +19,7 @@ import pandas as pd
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
 
-class character(Dataset):
-    def __init__ (self, dataframe, transform):
-        self.df = dataframe
-        self.tf = transform
-    
-    def __len__(self):
-        return len(self.df)
-    
-    def __getitem__(self,ind):
-        x = Image.open(self.df['path'].iloc[ind])
-        x = np.array(x)/255.
-        x = self.tf(image=x)['image']
-        x = x.float()
-
-        y = self.df['label'].iloc[ind]
-        return x, y
-    
-def albu():
-    transform ={"train":A.Compose([
-                                    A.Resize(width=32, height=32),
-                                    ToTensorV2(),
-                                ]),
-                "val":A.Compose([
-                                    A.Resize(width=32, height=32),
-                                    ToTensorV2()
-                                ])
-                } 
-    return transform
-
-def loader():
-    train_df = pd.read_csv(config.TRAIN_CSV)
-    val_df = pd.read_csv(config.VAL_CSV)
-    dfs = {
-        'train':train_df,
-        'val' :val_df
-    }
-
-    transform = albu()
-
-    img_datasets = {
-        x:character(dfs[x],transform[x])
-        for x in ['train','val']
-    }
-
-    dataset_sizes = {x: len(img_datasets[x]) for x in ['train', 'val']}
-
-    print(dataset_sizes)
-
-    dataloaders = {
-        x: DataLoader(img_datasets[x], batch_size=config.BATCH_SIZE,shuffle=True, num_workers=2)
-        for x in ['train', 'val']}
-
-    return dataloaders,dataset_sizes
+import config
 
 class akbhd(nn.Module):
     def __init__(self):
@@ -98,20 +43,27 @@ class akbhd(nn.Module):
         x = self.linear1(x)
         return x
 
-inputs = Input(shape = (32,32,1))
-conv0 = Conv2D(64, 3, padding = 'same', activation = 'relu')(inputs)
-conv1 = Conv2D(64, 3, padding='same', activation='relu')(conv0)
-conv2 = Conv2D(128, 3, padding='same', activation='relu')(conv1)
-pool2 = MaxPooling2D((2,2))(conv2)
-conv3 = Conv2D(128, 3, padding='same', activation='relu')(pool2)
-conv4 = Conv2D(256, 5, padding='same', activation='relu')(conv3)
-pool4 = MaxPooling2D((2,2))(conv4)
-conv5 = Conv2D(256, 5, padding='same', activation='relu')(pool4)
-flat = Flatten()(conv5)
-dense0 = Dense(512, activation='relu')(flat)
-dense1 = Dense(128, activation='relu')(dense0)
-dense2 = Dense(64, activation='relu')(dense1)
-dense3 = Dense(47, activation='softmax')(dense2)
+def calc_padding(in_height, in_width,filter_height, filter_width):
+    strides=(None,1,1)
+    out_height = np.ceil(float(in_height) / float(strides[1]))
+    out_width  = np.ceil(float(in_width) / float(strides[2]))
+
+    #The total padding applied along the height and width is computed as:
+    if (in_height % strides[1] == 0):
+        pad_along_height = max(filter_height - strides[1], 0)
+    else:
+        pad_along_height = max(filter_height - (in_height % strides[1]), 0)
+    if (in_width % strides[2] == 0):
+        pad_along_width = max(filter_width - strides[2], 0)
+    else:
+        pad_along_width = max(filter_width - (in_width % strides[2]), 0)
+
+    pad_top = pad_along_height // 2
+    pad_bottom = pad_along_height - pad_top
+    pad_left = pad_along_width // 2
+    pad_right = pad_along_width - pad_left
+
+    return (pad_left, pad_right, pad_top, pad_bottom)
 
 class vatch(nn.Module):
     def __init__(self):
@@ -120,23 +72,39 @@ class vatch(nn.Module):
         self.conv1 = nn.Conv2d(64,64,kernel_size=(3,3))
         self.conv2 = nn.Conv2d(64,128,kernel_size=(3,3))
         self.maxpool2 = nn.MaxPool2d(kernel_size=2)
-        self.conv3 = nn.Conv2d(128,64,kernel_size=(5,5))
-        self.maxpool2 = nn.MaxPool2d(kernel_size=5,stride=5)
-        self.linear1 = nn.Linear(64*2*2,config.NUM_CLASSES)
+        self.conv3 = nn.Conv2d(128,128,kernel_size=(3,3))
+        self.conv4 = nn.Conv2d(128,256,kernel_size=(5,5))
+        self.conv5 = nn.Conv2d(256,256,kernel_size=(5,5))
+        self.maxpool4 = nn.MaxPool2d(kernel_size=2)
+        self.linear0 = nn.Linear(16384,512)
+        self.linear1 = nn.Linear(512,128)
+        self.linear2 = nn.Linear(128,64)
+        self.linear3 = nn.Linear(64,config.NUM_CLASSES)
+    
+    def forward(self,x):
+        x = F.pad(x,calc_padding(32,32,3,3))
+        x = F.relu(self.conv0(x))
+        x = F.pad(x,calc_padding(x.size(2),x.size(3),3,3))
+        x = F.relu(self.conv1(x))
+        x = F.pad(x,calc_padding(x.size(2),x.size(3),3,3))
+        x = F.relu(self.conv2(x))
+        x = self.maxpool2(x)
+        x = F.pad(x,calc_padding(x.size(2),x.size(3),3,3))
+        x = F.relu(self.conv3(x))
+        x = F.pad(x,calc_padding(x.size(2),x.size(3),5,5))
+        x = F.relu(self.conv4(x))
+        x = self.maxpool4(x)
+        x = F.pad(x,calc_padding(x.size(2),x.size(3),5,5))
+        x = F.relu(self.conv5(x))
+        x = x.view(x.size(0),-1)
+        x = F.relu(self.linear0(x))
+        x = F.relu(self.linear1(x))
+        x = F.relu(self.linear2(x))
+        x = self.linear3(x)
+        return x
 
 if __name__ == '__main__':
-    dataloaders,dataset_sizes = loader()
 
-    model_ft = akbhd()
-    model_ft = model_ft.to(config.DEVICE)
-
-    criterion = nn.CrossEntropyLoss()
-
-    # Observe that all parameters are being optimized
-    # optimizer_ft = optim.SGD(model_ft.parameters(), lr=0.001, momentum=0.9)
-    optimizer_ft = optim.Adam(model_ft.parameters(), lr=0.001)
-
-    # Decay LR by a factor of 0.1 every 7 epochs
-    exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=7, gamma=0.1)
-    checkpoint_path = "/content/drive/MyDrive/competitions/mosaic-r1/weights/akbhd.pt"
-    model_ft, best_acc = train.train_model(model_ft, dataloaders, criterion, optimizer_ft, exp_lr_scheduler, dataset_sizes, checkpoint_path, num_epochs=config.NUM_EPOCHS)
+    mdl = vatch()
+    x = torch.rand((1,1,32,32))
+    print(mdl(x).size())

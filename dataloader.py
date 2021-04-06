@@ -27,52 +27,23 @@ class character(Dataset):
     
     def __getitem__(self,ind):
         x = Image.open(self.df['path'].iloc[ind])
-        x = x.convert('RGB')
-        # x = self.tf(x)
-        x = np.array(x)
+        x = np.array(x)/255.
         x = self.tf(image=x)['image']
+        x = x.float()
+
         y = self.df['label'].iloc[ind]
         return x, y
     
-def imshow(inp):
-    """Imshow for Tensor."""
-    inp = inp.numpy().transpose((1, 2, 0))
-    mean = np.array([0.485, 0.456, 0.406])
-    std = np.array([0.229, 0.224, 0.225])
-    inp = std * inp + mean
-    inp = np.clip(inp, 0, 1)*255
-    inp = inp.astype(np.uint8)
-    # print(inp)
-    img = Image.fromarray(inp)
-    img.save('vis.png')
-
 def albu():
     transform ={"train":A.Compose([
-                                    A.Resize(width=224, height=224),
-                                    A.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+                                    A.Resize(width=32, height=32),
                                     ToTensorV2(),
                                 ]),
                 "val":A.Compose([
-                                    A.Resize(width=224, height=224),
-                                    A.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+                                    A.Resize(width=32, height=32),
                                     ToTensorV2()
                                 ])
                 } 
-    return transform
-
-def transformer():
-    transform = {
-        'train': transforms.Compose([
-            transforms.Resize(224),
-            transforms.ToTensor(),
-            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
-            ]),
-        'val' : transforms.Compose([
-            transforms.Resize(224), 
-            transforms.ToTensor(),
-            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
-            ])
-    }
     return transform
 
 def loader():
@@ -104,6 +75,3 @@ if __name__=='__main__':
     dataloaders,dataset_sizes = loader()
     # Get a batch of training data
     inputs, classes = next(iter(dataloaders['train']))
-    # Make a grid from batch
-    out = torchvision.utils.make_grid(inputs)
-    imshow(out)
