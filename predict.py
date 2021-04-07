@@ -1,4 +1,5 @@
 import cv2
+import glob
 from PIL import Image, ImageOps
 
 from utils import load_ckp
@@ -24,17 +25,17 @@ def preprocess(path,pretrained):
         for i in range(h):
             for j in range(w):
                 if img[i][j]>130:
-                    img[i][j] = 0
+                    # img[i][j] = 0
                     new_img[i][j][0]=img[i][j]
                     new_img[i][j][1]=img[i][j]
                     new_img[i][j][2]=img[i][j]
                 else :
-                    img[i][j] = 255
+                    # img[i][j] = 255
                     new_img[i][j][0]=img[i][j]
                     new_img[i][j][1]=img[i][j]
                     new_img[i][j][2]=img[i][j]
         img = new_img
-        cv2.imwrite("/content/drive/MyDrive/competitions/mosaic-r1/test_imgs/ma_res.jpg",img)
+        # cv2.imwrite("/content/drive/MyDrive/competitions/mosaic-r1/test_imgs/ma_res.jpg",img)
         transform = A.Compose([
                     # A.InvertImg(always_apply=False, p=0.5),
                     A.Resize(width=224, height=224),
@@ -81,5 +82,8 @@ if __name__ == "__main__":
     checkpoint_path = "/content/drive/MyDrive/competitions/mosaic-r1/weights/res18_albu.pt"
     model, _, epoch, val_acc = load_ckp(checkpoint_path, model_ft, optimizer_ft, config.DEVICE)
     print(val_acc)
-    preds = predict(model, path, pretrained=True)
-    print(preds)
+    paths = glob.glob("/content/drive/MyDrive/competitions/mosaic-r1/test_imgs/test_seg_charac/*.jpeg")
+    for p in paths:
+        print(p)
+        preds = predict(model, p, pretrained=True)
+        print(preds)
