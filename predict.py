@@ -1,5 +1,5 @@
 import cv2
-from PIL import Image
+from PIL import Image, ImageOps
 
 from utils import load_ckp
 
@@ -16,18 +16,25 @@ import config
 def preprocess(path,pretrained):
     if pretrained == True:
         img = Image.open(path)
-        img = img.convert('RGB')
+        img = ImageOps.grayscale(img)
         img = np.array(img)
-        print(img.shape)
         h = img.shape[0]
         w = img.shape[1]
-        for k in range(3):
-            for i in range(h):
-                for j in range(w):
-                    if img[i][j][k]>130:
-                        img[i][j][k] = 0
-                    else :
-                        img[i][j][k] = 255
+        new_img = np.zeros((h,w,3))
+        for i in range(h):
+            for j in range(w):
+                if img[i][j]>130:
+                    img[i][j] = 0
+                    new_img[i][j][0]=img[i][j]
+                    new_img[i][j][1]=img[i][j]
+                    new_img[i][j][2]=img[i][j]
+                else :
+                    img[i][j] = 255
+                    new_img[i][j][0]=img[i][j]
+                    new_img[i][j][1]=img[i][j]
+                    new_img[i][j][2]=img[i][j]
+        img = new_img
+        cv2.imwrite("/content/drive/MyDrive/competitions/mosaic-r1/test_imgs/ma_res.jpg",img)
         transform = A.Compose([
                     # A.InvertImg(always_apply=False, p=0.5),
                     A.Resize(width=224, height=224),
@@ -66,7 +73,7 @@ def predict(model, path, pretrained):
 
 
 if __name__ == "__main__":
-    path = "/content/drive/MyDrive/competitions/mosaic-r1/test_imgs/ma.jpeg"
+    path = "/content/drive/MyDrive/competitions/mosaic-r1/test_imgs/ma.jpg"
 
     # model_ft = akbhd()
     model_ft = mdl("res18")

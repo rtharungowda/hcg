@@ -130,3 +130,4 @@ if __name__=='__main__':
     dataloaders,dataset_sizes = loader()
     # Get a batch of training data
     inputs, classes = next(iter(dataloaders['train']))
+    character_pre
