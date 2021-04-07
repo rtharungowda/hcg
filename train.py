@@ -16,7 +16,7 @@ import copy
 from tqdm import tqdm 
 
 from dataloader import loader
-from custom_model import akbhd, vatch, drklrd
+from model import akbhd, vatch, drklrd, mdl
 from utils import save_ckp, plot
 
 scaler = torch.cuda.amp.GradScaler()
@@ -68,6 +68,8 @@ def train_model(model, dataloaders, criterion, optimizer, scheduler, dataset_siz
                         scaler.step(optimizer)
                         scaler.update()
 
+                # torch.cuda.empty_cache()
+
                 # statistics
                 running_loss += loss.item() * inputs.size(0)
                 running_corrects += torch.sum(preds == labels.data)
@@ -117,10 +119,7 @@ def train_model(model, dataloaders, criterion, optimizer, scheduler, dataset_siz
 if __name__ == '__main__':
     dataloaders,dataset_sizes = loader(use_pretrained=True)
 
-    
-    model_ft = models.resnet18(pretrained=True)
-    num_ftrs = model_ft.fc.in_features
-    model_ft.fc = nn.Linear(num_ftrs, config.NUM_CLASSES)
+    model_ft = mdl("res34")
 
     # model_ft = drklrd()
     model_ft = model_ft.to(config.DEVICE)
@@ -130,5 +129,5 @@ if __name__ == '__main__':
 
     # Decay LR by a factor of 0.1 every 7 epochs
     exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=7, gamma=0.1)
-    checkpoint_path = "/content/drive/MyDrive/competitions/mosaic-r1/weights/res18_albu.pt"
+    checkpoint_path = "/content/drive/MyDrive/competitions/mosaic-r1/weights/res34_albu.pt"
     model_ft, best_acc = train_model(model_ft, dataloaders, criterion, optimizer_ft, exp_lr_scheduler, dataset_sizes, checkpoint_path, num_epochs=config.NUM_EPOCHS)

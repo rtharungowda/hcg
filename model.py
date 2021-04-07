@@ -158,6 +158,34 @@ class drklrd(nn.Module):
         
         return x
 
+def mdl(type):
+    if type == "res18":
+        model_ft = models.resnet18(pretrained=True)
+        num_ftrs = model_ft.fc.in_features
+        model_ft.fc = nn.Linear(num_ftrs, config.NUM_CLASSES)
+    
+    elif type == "res34":
+        model_ft = models.resnet34(pretrained=True)
+        num_ftrs = model_ft.fc.in_features
+        model_ft.fc = nn.Linear(num_ftrs, config.NUM_CLASSES)
+    
+    elif type == "res50":
+        model_ft = models.resnet50(pretrained=True)
+        num_ftrs = model_ft.fc.in_features
+        model_ft.fc = nn.Linear(num_ftrs, config.NUM_CLASSES)
+
+    elif type == "vgg19":
+        model_ft = models.vgg19(pretrained=True)
+        num_ftrs = model_ft.classifier[6].in_features
+        model_ft.classifier[6]= nn.Linear(num_ftrs, config.NUM_CLASSES)
+
+    elif type == "vgg16":
+        model_ft = models.vgg16(pretrained=True)
+        num_ftrs = model_ft.classifier[6].in_features
+        model_ft.classifier[6]= nn.Linear(num_ftrs, config.NUM_CLASSES)
+
+    return model_ft
+    
 if __name__ == '__main__':
 
     mdl = drklrd()
