@@ -4,6 +4,7 @@ import os
 import glob
 import config
 from PIL import Image
+import cv2
 import matplotlib.pyplot as plt
 
 import torch
@@ -38,7 +39,7 @@ class character_pre(Dataset):
     def __init__ (self, dataframe, transform):
         self.df = dataframe
         self.tf = transform
-    
+
     def __len__(self):
         return len(self.df)
     
@@ -46,6 +47,7 @@ class character_pre(Dataset):
         x = Image.open(self.df['path'].iloc[ind])
         x = x.convert('RGB')
         x = np.array(x)
+        # cv2.imwrite(f"/content/drive/MyDrive/competitions/mosaic-r1/test_imgs/{ind}_dataloader.png",x)
         x = self.tf(image=x)['image']
         x = x.float()
 
@@ -127,7 +129,19 @@ def loader(use_pretrained):
     return dataloaders,dataset_sizes
 
 if __name__=='__main__':
-    dataloaders,dataset_sizes = loader()
-    # Get a batch of training data
-    inputs, classes = next(iter(dataloaders['train']))
-    character_pre
+    # dataloaders,dataset_sizes = loader()
+    # inputs, classes = next(iter(dataloaders['train']))
+    train_df = pd.read_csv(config.TRAIN_CSV)
+    tf = A.Compose([
+                    A.OneOf([
+                        A.ShiftScaleRotate(always_apply=False, p=0.3, shift_limit=(0.0, 0.0), scale_limit=(0.0, 0.0), rotate_limit=(-10, 10), interpolation=0, border_mode=0, value=(0, 0, 0), mask_value=None),
+                        A.ShiftScaleRotate(always_apply=False, p=0.3, shift_limit=(-0.1, 0.1), scale_limit=(0.0, 0.0), rotate_limit=(0, 0), interpolation=0, border_mode=0, value=(0, 0, 0), mask_value=None),
+                        A.ShiftScaleRotate(always_apply=False, p=0.3, shift_limit=(0.0, 0.0), scale_limit=(-0.1, 0.1), rotate_limit=(0, 0), interpolation=0, border_mode=0, value=(0, 0, 0), mask_value=None),
+                        A.ShiftScaleRotate(always_apply=False, p=0.1, shift_limit=(-0.1, 0.1), scale_limit=(-0.1, 0.1), rotate_limit=(-10, 10), interpolation=0, border_mode=0, value=(0, 0, 0), mask_value=None),
+                    ],p=1.0),
+                    # A.InvertImg(always_apply=False, p=0.5),
+                    A.Resize(width=32, height=32),
+                    ToTensorV2(),
+                ])
+    dataset = character_pre(train_df,tf)
+    x,y = dataset.__getitem__(5)
