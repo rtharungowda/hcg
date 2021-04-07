@@ -75,7 +75,8 @@ def loader():
 
     dataloaders = {
         x: DataLoader(img_datasets[x], batch_size=config.BATCH_SIZE,shuffle=True, num_workers=2)
-        for x in ['train', 'val']}
+        for x in ['train', 'val']
+        }
 
     return dataloaders,dataset_sizes
 
