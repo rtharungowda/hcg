@@ -17,7 +17,7 @@ from sklearn.model_selection import train_test_split
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
 
-class character(Dataset):
+class character_cus(Dataset):
     def __init__ (self, dataframe, transform):
         self.df = dataframe
         self.tf = transform
@@ -33,8 +33,48 @@ class character(Dataset):
 
         y = self.df['label'].iloc[ind]
         return x, y
+
+class character_pre(Dataset):
+    def __init__ (self, dataframe, transform):
+        self.df = dataframe
+        self.tf = transform
     
-def albu():
+    def __len__(self):
+        return len(self.df)
+    
+    def __getitem__(self,ind):
+        x = Image.open(self.df['path'].iloc[ind])
+        x = x.convert('RGB')
+        x = np.array(x)
+        x = self.tf(image=x)['image']
+        x = x.float()
+
+        y = self.df['label'].iloc[ind]
+        return x, y
+    
+def albu(use_pretrained):
+    if use_pretrained==True:
+            transform ={"train":A.Compose([
+                                    A.OneOf([
+                                        A.ShiftScaleRotate(always_apply=False, p=0.3, shift_limit=(0.0, 0.0), scale_limit=(0.0, 0.0), rotate_limit=(-10, 10), interpolation=0, border_mode=0, value=(0, 0, 0), mask_value=None),
+                                        A.ShiftScaleRotate(always_apply=False, p=0.3, shift_limit=(-0.1, 0.1), scale_limit=(0.0, 0.0), rotate_limit=(0, 0), interpolation=0, border_mode=0, value=(0, 0, 0), mask_value=None),
+                                        A.ShiftScaleRotate(always_apply=False, p=0.3, shift_limit=(0.0, 0.0), scale_limit=(-0.1, 0.1), rotate_limit=(0, 0), interpolation=0, border_mode=0, value=(0, 0, 0), mask_value=None),
+                                        A.ShiftScaleRotate(always_apply=False, p=0.1, shift_limit=(-0.1, 0.1), scale_limit=(-0.1, 0.1), rotate_limit=(-10, 10), interpolation=0, border_mode=0, value=(0, 0, 0), mask_value=None),
+                                    ],p=1.0),
+                                    # A.InvertImg(always_apply=False, p=0.5),
+                                    A.Resize(width=224, height=224),
+                                    A.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+                                    ToTensorV2(),
+                                ]),
+                "val":A.Compose([
+                                    # A.InvertImg(always_apply=False, p=0.5),
+                                    A.Resize(width=224, height=224),
+                                    A.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+                                    ToTensorV2(),
+                                ])
+                } 
+            return transform
+
     transform ={"train":A.Compose([
                                     A.OneOf([
                                         A.ShiftScaleRotate(always_apply=False, p=0.3, shift_limit=(0.0, 0.0), scale_limit=(0.0, 0.0), rotate_limit=(-10, 10), interpolation=0, border_mode=0, value=(0, 0, 0), mask_value=None),
@@ -54,7 +94,7 @@ def albu():
                 } 
     return transform
 
-def loader():
+def loader(use_pretrained):
     train_df = pd.read_csv(config.TRAIN_CSV)
     val_df = pd.read_csv(config.VAL_CSV)
     dfs = {
@@ -62,12 +102,18 @@ def loader():
         'val' :val_df
     }
 
-    transform = albu()
+    transform = albu(use_pretrained)
 
-    img_datasets = {
-        x:character(dfs[x],transform[x])
-        for x in ['train','val']
-    }
+    if use_pretrained == True:
+        img_datasets = {
+            x:character_pre(dfs[x],transform[x])
+            for x in ['train','val']
+        }
+    else:
+        img_datasets = {
+            x:character_cus(dfs[x],transform[x])
+            for x in ['train','val']
+        }
 
     dataset_sizes = {x: len(img_datasets[x]) for x in ['train', 'val']}
 
