@@ -19,6 +19,8 @@ import pandas as pd
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
 
+from efficientnet_pytorch import EfficientNet
+
 import config
 
 def calc_padding(in_height, in_width,filter_height, filter_width, strides=(None,1,1)):
@@ -174,15 +176,8 @@ def mdl(type):
         num_ftrs = model_ft.fc.in_features
         model_ft.fc = nn.Linear(num_ftrs, config.NUM_CLASSES)
 
-    elif type == "vgg19":
-        model_ft = models.vgg19(pretrained=True)
-        num_ftrs = model_ft.classifier[6].in_features
-        model_ft.classifier[6]= nn.Linear(num_ftrs, config.NUM_CLASSES)
-
-    elif type == "vgg16":
-        model_ft = models.vgg16(pretrained=True)
-        num_ftrs = model_ft.classifier[6].in_features
-        model_ft.classifier[6]= nn.Linear(num_ftrs, config.NUM_CLASSES)
+    elif type == "eff-b3":
+        model_ft = EfficientNet.from_pretrained('efficientnet-b3', num_classes=config.NUM_CLASSES)
 
     return model_ft
     
