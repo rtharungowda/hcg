@@ -176,8 +176,8 @@ def mdl(type):
         num_ftrs = model_ft.fc.in_features
         model_ft.fc = nn.Linear(num_ftrs, config.NUM_CLASSES)
 
-    elif type == "eff-b2":
-        model_ft = EfficientNet.from_pretrained('efficientnet-b2', num_classes=config.NUM_CLASSES)
+    elif type == "eff-b0":
+        model_ft = EfficientNet.from_pretrained('efficientnet-b0', num_classes=config.NUM_CLASSES)
 
     return model_ft
     
