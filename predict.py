@@ -52,8 +52,7 @@ def preprocess(path,pretrained):
                     img[i][j] = 0
                 else :
                     img[i][j] = 255
-        img=np.array(img)
-        img/=255.
+        img=np.array(img)/255.
         transform = A.Compose([
                                 A.Resize(width=32, height=32),
                                 ToTensorV2(),
@@ -83,6 +82,21 @@ if __name__ == "__main__":
 
     mdls = []
 
+    model_ft = akbhd()
+    optimizer_ft = optim.Adam(model_ft.parameters(), lr=0.001)
+    checkpoint_path_akbhd = [
+                    "/content/drive/MyDrive/competitions/mosaic-r1/weights/akbhd_albu_relu_padded.pt",
+                    "/content/drive/MyDrive/competitions/mosaic-r1/weights/akbhd_albu_relu.pt",
+                    "/content/drive/MyDrive/competitions/mosaic-r1/weights/akbhd_albu.pt",
+                    "/content/drive/MyDrive/competitions/mosaic-r1/weights/akbhd_albu2.pt",
+                    "/content/drive/MyDrive/competitions/mosaic-r1/weights/akbhd.pt",
+                    ]
+    for p in checkpoint_path_akbhd:
+        model, _, epoch, val_acc = load_ckp(p, model_ft, optimizer_ft, config.DEVICE)
+        model = model.to(config.DEVICE)
+        model.eval()
+        mdls.append(model)
+
     # model_ft = mdl("res18")
     # optimizer_ft = optim.Adam(model_ft.parameters(), lr=0.001)
     # checkpoint_path_res18 = [
@@ -95,22 +109,22 @@ if __name__ == "__main__":
     #     model.eval()
     #     mdls.append(model)
 
-    model_ft = mdl("res34")
-    optimizer_ft = optim.Adam(model_ft.parameters(), lr=0.001)
-    checkpoint_path_res34 = [
-                    "/content/drive/MyDrive/competitions/mosaic-r1/weights/res34_albu_2.pt",
-                    # "/content/drive/MyDrive/competitions/mosaic-r1/weights/res34_albu.pt",
-    ]
-    for p in checkpoint_path_res34:
-        model, _, _, _ = load_ckp(p, model_ft, optimizer_ft, config.DEVICE)
-        model = model.to(config.DEVICE)
-        model.eval()
-        mdls.append(model)
+    # model_ft = mdl("res34")
+    # optimizer_ft = optim.Adam(model_ft.parameters(), lr=0.001)
+    # checkpoint_path_res34 = [
+    #                 "/content/drive/MyDrive/competitions/mosaic-r1/weights/res34_albu_2.pt",
+    #                 # "/content/drive/MyDrive/competitions/mosaic-r1/weights/res34_albu.pt",
+    # ]
+    # for p in checkpoint_path_res34:
+    #     model, _, _, _ = load_ckp(p, model_ft, optimizer_ft, config.DEVICE)
+    #     model = model.to(config.DEVICE)
+    #     model.eval()
+    #     mdls.append(model)
 
-    paths = glob.glob("/content/drive/MyDrive/competitions/mosaic-r1/test_imgs/*.jpeg")
+    paths = glob.glob("/content/drive/MyDrive/competitions/mosaic-r1/test_imgs/test_seg_charac/*.jpg")
     # paths = ["/content/drive/MyDrive/competitions/mosaic-r1/test_imgs/WhatsApp Image 2021-04-07 at 17.46.17.jpeg",
     #         ]
     for p in paths:
         print(p)
-        preds = predict(mdls, p, pretrained=True)
+        preds = predict(mdls, p, pretrained=False)
         print(preds)
