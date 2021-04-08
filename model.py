@@ -178,6 +178,9 @@ def mdl(type):
 
     elif type == "eff-b0":
         model_ft = EfficientNet.from_pretrained('efficientnet-b0', num_classes=config.NUM_CLASSES)
+    
+    elif type == "eff-b1":
+        model_ft = EfficientNet.from_pretrained('efficientnet-b1', num_classes=config.NUM_CLASSES)
 
     return model_ft
     

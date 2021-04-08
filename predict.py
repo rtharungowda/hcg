@@ -14,6 +14,8 @@ from albumentations.pytorch import ToTensorV2
 from model import akbhd, mdl
 import config
 
+# config.DEVICE = torch.device('cpu')
+
 def preprocess(path,pretrained):
     if pretrained == True:
         img = Image.open(path)
