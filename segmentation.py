@@ -57,7 +57,7 @@ def getSkewAngle(cvImage) -> float:
 
     # Determine the angle. Convert it to the value that was originally used to obtain skewed image
     angle = minAreaRect[-1]
-    print(angle)
+    # print(angle)
     if angle < -45:
         angle = 90 + angle
     return -1.0 * angle
@@ -80,7 +80,7 @@ def remove_horiz_line(new_img):
     detected_lines = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, horizontal_kernel, iterations=2)
     cnts = cv2.findContours(detected_lines, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     cnts = cnts[0] if len(cnts) == 2 else cnts[1]
-    print("Number of horizontal lines:", len(cnts))
+    # print("Number of horizontal lines:", len(cnts))
 
     # Setting Ratio of the figure above which horizontal lines should be removed.
     RATIO_TO_BE_KEPT = 0.18
@@ -97,13 +97,13 @@ def remove_horiz_line(new_img):
         cv2.drawContours(thresh_copy, [cnts[-1]], -1, (0, 255, 0), 7)
         cv2.drawContours(thresh_copy, [cnts[-2]], -1, (255, 0, 0), 7)
 
-    print("minAreaRect info:", minAreaRect)
-    print("y\ty_lim")
+    # print("minAreaRect info:", minAreaRect)
+    # print("y\ty_lim")
     if len(cnts) != 0:
         cv2.drawContours(thresh, [cnts[-1]], -1, (0, 0, 0), 7)
     for c in cnts:
         y = cv2.boundingRect(c)[1]
-        print(y, "   {:.2f}".format(y_lim))
+        # print(y, "   {:.2f}".format(y_lim))
         if not TEST_RATIO_MODE:
             if y < y_lim:
                 cv2.drawContours(thresh, [c], -1, (0, 0, 0), 7)
@@ -119,9 +119,12 @@ def get_dominant_colour(image):
 
     return centers[0].astype(int).tolist()
 
-def perform_segmentation(image):
+def perform_segmentation(path):
     global TEST_RATIO_MODE, img_area
-    print(image.shape)
+
+    image = cv2.imread(path)
+
+    # print(image.shape)
     image = cv2.copyMakeBorder(image, int(image.shape[0]/20), int(image.shape[0]/20), int(image.shape[1]/20), int(image.shape[1]/20), cv2.BORDER_REPLICATE)
 
     image = resize_with_aspect(image, 500)
@@ -137,23 +140,20 @@ def perform_segmentation(image):
     if TEST_RATIO_MODE:
         exit()
 
-    print()
-
-    # img_area = iwl_bb.shape[1] * iwl_bb.shape[0]
-    # print(iwl_bb.shape[1], iwl_bb.shape[0])
-    print("MinAreaRect Area:", img_area)
+    # print()
+    # print("MinAreaRect Area:", img_area)
 
     contours,_=cv2.findContours(iwl_bb,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
     rect=[]
     mids=[]
-    print("Number of contours:", len(contours))
-    print("Contour Area\tImage Area Limit")
+    # print("Number of contours:", len(contours))
+    # print("Contour Area\tImage Area Limit")
     for cnt in contours:
         if cv2.contourArea(cnt) > img_area / 2:
             # print(cv2.contourArea(cnt), "\t\t  ", img_area/2)
             continue
         if cv2.contourArea(cnt) > img_area / 210:
-            print(cv2.contourArea(cnt), "\t\t  ", img_area/210)
+            # print(cv2.contourArea(cnt), "\t\t  ", img_area/210)
             x,y,w,h=cv2.boundingRect(cnt)
             # print(x, y, w, h)
             rect.append([x,y,w,h])
@@ -186,12 +186,14 @@ def perform_segmentation(image):
                 bottom=int(1*borderless),
                 borderType=cv2.BORDER_CONSTANT,
                 value=[0,0,0])
-        cv2.namedWindow("img_{}".format(i), cv2.WINDOW_GUI_EXPANDED)
+        # cv2.namedWindow("img_{}".format(i), cv2.WINDOW_GUI_EXPANDED)
         images.append(image)
     return images
 
     # TODO: Bounding box is not aligned properly after rotation? Maybe due to resize
 
 if __name__ == '__main__':
-    image = cv2.imread(os.path.join(os.getcwd(), filename))
-    perform_segmentation(image)
+    path = "/content/drive/MyDrive/Mosaic1 sample/samay2.jpg"
+    
+    images = perform_segmentation(path)
+    print("shape ",len(images))

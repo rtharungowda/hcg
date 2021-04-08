@@ -14,13 +14,16 @@ from albumentations.pytorch import ToTensorV2
 from model import akbhd, mdl
 import config
 
-# config.DEVICE = torch.device('cpu')
+import os
+from segmentation import perform_segmentation
 
-def preprocess(path,pretrained):
+config.DEVICE = torch.device('cpu')
+
+def preprocess(img,pretrained):
+    img = np.array(img)
     if pretrained == True:
-        img = Image.open(path)
-        img = ImageOps.grayscale(img)
-        img = np.array(img)
+        # img = Image.open(path)
+        # img = ImageOps.grayscale(img)
         h = img.shape[0]
         w = img.shape[1]
         new_img = np.zeros((h,w,3))
@@ -45,7 +48,7 @@ def preprocess(path,pretrained):
                     ToTensorV2(),
                 ])
     else :
-        img = cv2.imread(path,0)
+        # img = cv2.imread(path,0)
         h = img.shape[0]
         w = img.shape[1]
         for i in range(h):
@@ -63,8 +66,8 @@ def preprocess(path,pretrained):
     img = transform(image=img)['image'].float().unsqueeze(0)
     return img
 
-def predict(mdls, path, pretrained):
-    img = preprocess(path, pretrained)
+def predict(mdls, img, pretrained):
+    img = preprocess(img, pretrained)
     img = img.to(config.DEVICE)
     all_preds = []
     with torch.no_grad():
@@ -73,7 +76,7 @@ def predict(mdls, path, pretrained):
             _, preds = torch.max(outputs, 1)
             preds = preds.to('cpu')
             all_preds.append(preds)
-    print(all_preds)
+    # print(all_preds)
     n_preds = torch.cat(all_preds,dim=-1)
     preds,_ = torch.mode(n_preds)
     return preds
@@ -105,7 +108,7 @@ if __name__ == "__main__":
     #                 "/content/drive/MyDrive/competitions/mosaic-r1/weights/res18_albu_2.pt",
     #                 "/content/drive/MyDrive/competitions/mosaic-r1/weights/res18_albu.pt",
     # ]
-    # for p in checkpoint_path_r\es18:
+    # for p in checkpoint_path_res18:
     #     model, _, _, _ = load_ckp(p, model_ft, optimizer_ft, config.DEVICE)
     #     model = model.to(config.DEVICE)
     #     model.eval()
@@ -123,10 +126,11 @@ if __name__ == "__main__":
         model.eval()
         mdls.append(model)
 
-    paths = glob.glob("/content/drive/MyDrive/competitions/mosaic-r1/test_imgs/test_seg_charac/*.jpeg")
-    # paths = ["/content/drive/MyDrive/competitions/mosaic-r1/test_imgs/WhatsApp Image 2021-04-07 at 17.46.17.jpeg",
-    #         ]
+    # paths = glob.glob("/content/drive/MyDrive/Mosaic1 sample/*.jpg")
+    paths = ["/content/drive/MyDrive/Mosaic1 sample/26.jpg"]
     for p in paths:
         print(p)
-        preds = predict(mdls, p, pretrained=True)
-        print(preds)
+        imgs = perform_segmentation(p)
+        for img in imgs:
+            preds = predict(mdls, img, pretrained=True)
+            print(preds)
