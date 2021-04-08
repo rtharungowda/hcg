@@ -62,28 +62,55 @@ def preprocess(path,pretrained):
     img = transform(image=img)['image'].float().unsqueeze(0)
     return img
 
-def predict(model, path, pretrained):
-    model.to(config.DEVICE)
-    model.eval()
+def predict(mdls, path, pretrained):
     img = preprocess(path, pretrained)
     img = img.to(config.DEVICE)
+    all_preds = []
     with torch.no_grad():
-        outputs = model(img)
-        _, preds = torch.max(outputs,1)
+        for model in mdls:
+            outputs = model(img)
+            _, preds = torch.max(outputs, 1)
+            preds = preds.to('cpu')
+            all_preds.append(preds)
+    print(all_preds)
+    n_preds = torch.cat(all_preds,dim=-1)
+    preds,_ = torch.mode(n_preds)
     return preds
 
 
 if __name__ == "__main__":
-    path = "/content/drive/MyDrive/competitions/mosaic-r1/test_imgs/ma.jpg"
-
     # model_ft = akbhd()
-    model_ft = mdl("res18")
+
+    mdls = []
+
+    # model_ft = mdl("res18")
+    # optimizer_ft = optim.Adam(model_ft.parameters(), lr=0.001)
+    # checkpoint_path_res18 = [
+    #                 "/content/drive/MyDrive/competitions/mosaic-r1/weights/res18_albu_2.pt",
+    #                 "/content/drive/MyDrive/competitions/mosaic-r1/weights/res18_albu.pt",
+    # ]
+    # for p in checkpoint_path_res18:
+    #     model, _, _, _ = load_ckp(p, model_ft, optimizer_ft, config.DEVICE)
+    #     model = model.to(config.DEVICE)
+    #     model.eval()
+    #     mdls.append(model)
+
+    model_ft = mdl("res34")
     optimizer_ft = optim.Adam(model_ft.parameters(), lr=0.001)
-    checkpoint_path = "/content/drive/MyDrive/competitions/mosaic-r1/weights/res18_albu.pt"
-    model, _, epoch, val_acc = load_ckp(checkpoint_path, model_ft, optimizer_ft, config.DEVICE)
-    print(val_acc)
-    paths = glob.glob("/content/drive/MyDrive/competitions/mosaic-r1/test_imgs/test_seg_charac/*.jpeg")
+    checkpoint_path_res34 = [
+                    "/content/drive/MyDrive/competitions/mosaic-r1/weights/res34_albu_2.pt",
+                    # "/content/drive/MyDrive/competitions/mosaic-r1/weights/res34_albu.pt",
+    ]
+    for p in checkpoint_path_res34:
+        model, _, _, _ = load_ckp(p, model_ft, optimizer_ft, config.DEVICE)
+        model = model.to(config.DEVICE)
+        model.eval()
+        mdls.append(model)
+
+    paths = glob.glob("/content/drive/MyDrive/competitions/mosaic-r1/test_imgs/*.jpeg")
+    # paths = ["/content/drive/MyDrive/competitions/mosaic-r1/test_imgs/WhatsApp Image 2021-04-07 at 17.46.17.jpeg",
+    #         ]
     for p in paths:
         print(p)
-        preds = predict(model, p, pretrained=True)
+        preds = predict(mdls, p, pretrained=True)
         print(preds)
