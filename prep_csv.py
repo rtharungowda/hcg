@@ -8,6 +8,9 @@ def create_csv(path_dataset,train=True):
     path = []
     labels = []
     for folder in folders:
+        if folder in config.DROP_FOLDER:
+            continue
+        print(folder)
         folder_path = os.path.join(path_dataset,folder)
         files = glob.glob(folder_path+"/*.png")
         for f in files:
