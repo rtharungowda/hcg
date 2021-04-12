@@ -16,7 +16,7 @@ def awesomize(image):
         norm_img = cv2.normalize(diff_img,None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8UC1)
         result_norm_planes.append(norm_img)
     result_norm = cv2.merge(result_norm_planes)
-    
+
     return result_norm
 
 def contrast(img):
@@ -164,10 +164,10 @@ def add_line(image):
 
     return cvImage
 
-def perform_segmentation(path):
+def perform_segmentation(image):
     global TEST_RATIO_MODE, img_area
 
-    image = cv2.imread(path)
+    # image = cv2.imread(path)
 
     # print(image.shape)
     image = cv2.copyMakeBorder(image, int(image.shape[0]/20), int(image.shape[0]/20), int(image.shape[1]/20), int(image.shape[1]/20), cv2.BORDER_REPLICATE)

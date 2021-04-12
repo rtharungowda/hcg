@@ -19,6 +19,38 @@ import os
 import cv2
 import numpy as np 
 
+from predict import predict_charac
+from segmentation import perform_segmentation
+
+INV_MAP = {
+    1 : 'क', 
+    2 : 'घ ', 
+    3 : 'च', 
+    4 : 'छ', 
+    5 : 'ज', 
+    6 : 'झ',
+    7 : 'ञ',
+    8 : 'ट',
+    9 : 'ठ', 
+    10: 'ड', 
+    11: 'त', 
+    12: 'द', 
+    13: 'न', 
+    14: 'प', 
+    15: 'फ', 
+    16: 'ब', 
+    17: 'म', 
+    18: 'य', 
+    19: 'र', 
+    20: 'ल', 
+    21: 'व', 
+    22: 'ष', 
+    23: 'स', 
+    24: 'ह', 
+    25: 'क्ष', 
+    26: 'त्र', 
+}
+
 '''
 function: predict
 input: image - A numpy array which is an rgb image
@@ -29,13 +61,17 @@ this we encourgae you to write essential function in other files and import them
 the final code is neat and not too big. Make sure you use the same input format and return 
 same output format.
 '''
+
 def predict(image):
     '''
     Write your code for prediction here.
     '''
-    answer = ['क','ख','ग'] # sample needs to be modified
+    imgs = perform_segmentation(image)#perfom segmenation and returns list of characters
+    answer = []
+    for img in imgs:#iterate over the character and make prediction
+        preds = predict_charac(img)
+        answer.append(INV_MAP[preds.item()])#append prediction
     return answer
-
 
 '''
 function: test
@@ -56,8 +92,8 @@ def test():
     '''
     We will be using a similar template to test your code
     '''
-    image_paths = ['./image1','./image2',',./imagen']
-    correct_answers = [list1,list2,listn]
+    image_paths = ['/content/drive/MyDrive/Mosaic1 sample/samay2.jpg']
+    correct_answers = [["स" ,"म" ,"य"]]
     score = 0
     multiplication_factor=2 #depends on character set size
 
@@ -66,8 +102,17 @@ def test():
         answer = predict(image) # a list is expected
         print(''.join(answer))# will be the output string
 
-        if correct_answers[i] == answer:
-            score += len(answer)*multiplication_factor
+        n=0
+        for j in range(len(answer)):
+            if correct_answers[i][j] == answer[j]:
+                n+=1
+                
+        if(n==len(correct_answers[i])):
+            score += len(correct_answers[i])*multiplication_factor
+
+        else:
+            score += n*2
+        
     
     print('The final score of the participant is',score)
 

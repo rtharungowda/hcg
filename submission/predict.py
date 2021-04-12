@@ -46,7 +46,7 @@ def preprocess(img):
     img = transform(image=new_img)['image'].float().unsqueeze(0)
     return img
 
-def predict(img):
+def predict_charac(img):
     model_ft = models.resnet34(pretrained=True)
     num_ftrs = model_ft.fc.in_features
     model_ft.fc = nn.Linear(num_ftrs, 27)
@@ -63,7 +63,7 @@ def predict(img):
     with torch.no_grad():
         outputs = model(img)
         _, preds = torch.max(outputs, 1)
-        
+
     return preds
 
 
@@ -72,5 +72,5 @@ if __name__ == "__main__":
     print(path)
     imgs = perform_segmentation(path)
     for img in imgs:
-        preds = predict(img)
+        preds = predict_charac(img)
         print(preds)
