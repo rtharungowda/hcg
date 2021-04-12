@@ -22,6 +22,21 @@ from utils import save_ckp, plot
 scaler = torch.cuda.amp.GradScaler()
 
 def train_model(model, dataloaders, criterion, optimizer, scheduler, dataset_sizes, checkpoint_path, num_epochs=25):
+    """train model
+
+    Args:
+        model (torch.model): pytorch model
+        dataloaders (torchvision.dataloaders): train and validation dataloaders
+        criterion (nn.criterion): loss criterion
+        optimizer (torch.optim): optimizer
+        scheduler (torch.optim.scheduler): schedulers
+        dataset_sizes (dict): dataset sizes dictionart
+        checkpoint_path (str): path to save model
+        num_epochs (int, optional): number of epochs. Defaults to 25.
+
+    Returns:
+        torch.model: model with the best validation 
+    """
     print(f"saving to {checkpoint_path}")
     since = time.time()
 
@@ -117,7 +132,7 @@ def train_model(model, dataloaders, criterion, optimizer, scheduler, dataset_siz
     return model, best_acc
 
 if __name__ == '__main__':
-    dataloaders,dataset_sizes = loader(use_pretrained=True)
+    dataloaders,dataset_sizes = loader()
 
     model_ft = mdl("res34")
 
@@ -129,5 +144,5 @@ if __name__ == '__main__':
 
     # Decay LR by a factor of 0.1 every 7 epochs
     exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=7, gamma=0.1)
-    checkpoint_path = "/content/drive/MyDrive/competitions/mosaic-r1/weights/res34_albu_26.pt"
+    checkpoint_path = "/content/drive/MyDrive/competitions/mosaic-r1/weights/res18_albu_26.pt" #paths
     model_ft, best_acc = train_model(model_ft, dataloaders, criterion, optimizer_ft, exp_lr_scheduler, dataset_sizes, checkpoint_path, num_epochs=config.NUM_EPOCHS)

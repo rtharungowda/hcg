@@ -161,6 +161,14 @@ class drklrd(nn.Module):
         return x
 
 def mdl(type):
+    """returns required model
+
+    Args:
+        type (str): see function for associated key for a particular model
+
+    Returns:
+        torch.models: pytorch model
+    """
     if type == "res18":
         model_ft = models.resnet18(pretrained=True)
         num_ftrs = model_ft.fc.in_features
