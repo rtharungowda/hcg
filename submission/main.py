@@ -61,7 +61,6 @@ this we encourgae you to write essential function in other files and import them
 the final code is neat and not too big. Make sure you use the same input format and return 
 same output format.
 '''
-
 def predict(image):
     '''
     Write your code for prediction here.
@@ -72,6 +71,7 @@ def predict(image):
         preds = predict_charac(img)
         answer.append(INV_MAP[preds.item()])#append prediction
     return answer
+
 
 '''
 function: test
@@ -92,7 +92,7 @@ def test():
     '''
     We will be using a similar template to test your code
     '''
-    image_paths = ['/content/drive/MyDrive/Mosaic1 sample/samay2.jpg']
+    image_paths = ['/content/drive/MyDrive/Mosaic1 sample/long word.jpeg']
     correct_answers = [["स" ,"म" ,"य"]]
     score = 0
     multiplication_factor=2 #depends on character set size
