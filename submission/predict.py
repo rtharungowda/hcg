@@ -16,6 +16,20 @@ from segmentation import perform_segmentation
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def load_ckp(checkpoint_fpath, model, optimizer, device):
+    """load saved model  and optimizer 
+
+    Args:
+        checkpoint_fpath (str): path of saved model
+        model (torch.model): model to be loaded
+        optimizer (torch.optim): optimizer to be loaded
+        device (torch.device): load model on device
+
+    Returns:
+        torch.model: pytorch model
+        torch.optim: pytorch optimizer
+        int: epoch number 
+        float: validation accuracy
+    """
 
     checkpoint = torch.load(checkpoint_fpath,map_location=device)
     model.load_state_dict(checkpoint['state_dict'])
@@ -24,6 +38,14 @@ def load_ckp(checkpoint_fpath, model, optimizer, device):
     return model, optimizer, checkpoint['epoch'], valid_acc
 
 def preprocess(img):
+    """return preprocessed image
+
+    Args:
+        img (np.array): image
+
+    Returns:
+        torch.tensor: processed image tensor
+    """
     img = np.array(img)
     h = img.shape[0]
     w = img.shape[1]
@@ -47,6 +69,14 @@ def preprocess(img):
     return img
 
 def predict_charac(img):
+    """predicts the character in image
+
+    Args:
+        img (np.array): image
+
+    Returns:
+        torch.tensor: predicted character label
+    """
     model_ft = models.resnet34(pretrained=True)
     num_ftrs = model_ft.fc.in_features
     model_ft.fc = nn.Linear(num_ftrs, 27)

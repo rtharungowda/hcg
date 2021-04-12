@@ -92,7 +92,7 @@ def test():
     '''
     We will be using a similar template to test your code
     '''
-    image_paths = ['/content/drive/MyDrive/Mosaic1 sample/long word.jpeg']
+    image_paths = ['/content/drive/MyDrive/Mosaic1 sample/samay2.jpg']
     correct_answers = [["स" ,"म" ,"य"]]
     score = 0
     multiplication_factor=2 #depends on character set size
