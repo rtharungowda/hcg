@@ -2,6 +2,7 @@ import cv2
 import glob
 import numpy as np
 from PIL import Image
+import os
 
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
@@ -82,7 +83,8 @@ def predict_charac(img):
     model_ft.fc = nn.Linear(num_ftrs, 27)
 
     optimizer_ft = optim.Adam(model_ft.parameters(), lr=0.001)
-    checkpoint_path_res34 = "/content/drive/MyDrive/competitions/mosaic-r1/weights/res34_albu_26.pt"
+    folder = os.path.dirname(__file__)
+    checkpoint_path_res34 = os.path.join(folder,"res34_albu_26.pt")
     model, _, _, _ = load_ckp(checkpoint_path_res34, model_ft, optimizer_ft, DEVICE)
     model = model.to(DEVICE)
     model.eval()
@@ -100,7 +102,8 @@ def predict_charac(img):
 if __name__ == "__main__":
     path = "/content/drive/MyDrive/Mosaic1 sample/samay2.jpg"
     print(path)
-    imgs = perform_segmentation(path)
+    img = cv2.imread(path)
+    imgs = perform_segmentation(img)
     for img in imgs:
         preds = predict_charac(img)
         print(preds)
